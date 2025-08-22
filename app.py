@@ -4,7 +4,7 @@ git commit -m "Add requirements.txt"
 git push origin main
 '''
 
-
+import os
 from flask import Flask, request, jsonify, render_template
 from supabase import create_client, Client
 
@@ -154,6 +154,6 @@ def reset_all():
 
 
 if __name__ == "__main__":
-    import os
+    
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
