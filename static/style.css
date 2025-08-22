@@ -1,0 +1,146 @@
+/* style.css - 모던 깔끔 디자인 */
+
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #2c3e50;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 20px;
+  color: #000000;
+  font-weight: 700;
+}
+
+h2 {
+  margin-top: 40px;
+  color: #34495e;
+  text-align: center;
+}
+
+h3 {
+  text-align: center;
+  margin-top: 30px;
+  font-weight: 400;
+  color: #7f8c8d;
+}
+
+/* 테이블 스타일 */
+table {
+  border-collapse: collapse; 
+  width: 80%;                
+  margin: 20px auto;         
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+th {
+  background-color: #e0f7f4;
+  color: #000000;
+  font-weight: 600;
+  padding: 12px;
+}
+
+td {
+  border-bottom: 1px solid #ecf0f1;
+  padding: 12px;
+}
+
+td:last-child, th:last-child {
+  border-right: none;
+}
+
+/* 체크 이미지 */
+td img {
+  display: block;
+  margin: 0 auto;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+td img:hover {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+
+/* 예약 폼 */
+#reservation-form, #reservation-form-b {
+  width: 80%;
+  margin: 0 auto 30px auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  background-color: #ffffff;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+#reservation-form label, #reservation-form-b label {
+  font-weight: 500;
+  margin-right: 5px;
+}
+
+#reservation-form input, #reservation-form-b input {
+  padding: 6px 10px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#reservation-form input:focus, #reservation-form-b input:focus {
+  border-color: #1abc9c;
+  box-shadow: 0 0 4px rgba(26, 188, 156, 0.3);
+  outline: none;
+}
+
+/* 버튼 */
+button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #1abc9c;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background-color: #16a085;
+  transform: scale(1.05);
+}
+
+/* 초기화 버튼 별도 스타일 */
+#reset-btn {
+  background-color: #e74c3c;
+}
+
+#reset-btn:hover {
+  background-color: #c0392b;
+}
+
+/* 반응형 */
+@media screen and (max-width: 768px) {
+  table, #reservation-form, #reservation-form-b {
+    width: 95%;
+  }
+
+  #reservation-form, #reservation-form-b {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #reservation-form label, #reservation-form-b label {
+    margin-top: 10px;
+  }
+}
