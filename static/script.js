@@ -8,7 +8,7 @@ const timeMap = { "1": "1타임(18:50~19:40)", "2": "2타임(19:50~20:40)", "3":
 function createTable(containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
-  const headerRow = ["예약 타임", "인원수", "대표 전화번호", "이름"];
+  const headerRow = ["예약 타임", "인원수", "대표 전화번호", "이름", "취소"]; // 마지막 컬럼 추가
   const headerCol = ["1","2","3"];
 
   const table = document.createElement("table");
@@ -16,7 +16,7 @@ function createTable(containerId) {
   table.style.width = "100%";
 
   const colgroup = document.createElement("colgroup");
-  colgroup.innerHTML = `<col style="width:20%;"><col style="width:20%;"><col style="width:30%;"><col style="width:30%;">`;
+  colgroup.innerHTML = `<col style="width:20%;"><col style="width:15%;"><col style="width:25%;"><col style="width:25%;"><col style="width:15%;">`;
   table.appendChild(colgroup);
 
   const header = document.createElement("tr");
@@ -40,7 +40,7 @@ function createTable(containerId) {
     termCell.style.padding = "5px";
     row.appendChild(termCell);
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) { // 데이터 컬럼 + 취소 버튼 포함
       const cell = document.createElement("td");
       cell.style.border = "1px solid #999";
       cell.style.padding = "5px";
@@ -57,31 +57,64 @@ function createTable(containerId) {
 // ======================
 // 테이블 업데이트
 // ======================
-function updateTable(table, roomData) {
+function updateTable(table, roomData, deleteUrl) {
   table.querySelectorAll("tr[data-term]").forEach(row => {
     const term = row.getAttribute("data-term");
     const item = roomData[term];
+
     row.cells[1].innerText = item ? item.people_number || "" : "";
     row.cells[2].innerText = item ? item.tel || "" : "";
     row.cells[3].innerText = item ? item.name || "" : "";
+
+    // ❌ 아이콘 취소 버튼 항상 표시
+    row.cells[4].innerHTML = "";
+    const cancelBtn = document.createElement("img");
+    cancelBtn.src = "https://cdn-icons-png.flaticon.com/512/1828/1828665.png"; // ❌ 아이콘
+    cancelBtn.alt = "취소";
+    cancelBtn.style.width = "24px";
+    cancelBtn.style.height = "24px";
+    cancelBtn.style.cursor = "pointer";
+    cancelBtn.style.display = "block";
+    cancelBtn.style.margin = "0 auto";
+
+    cancelBtn.addEventListener("click", async () => {
+      if (!confirm(`${timeMap[term]} 예약을 취소하시겠습니까?`)) return;
+      try {
+        const res = await fetch(deleteUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reservation_term: term })
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.message);
+        alert("예약이 취소되었습니다!");
+        await loadData(deleteUrl.replace("/delete_reservation", "/load_data")
+                                .replace("/delete_reservation_b", "/load_data_b"), 
+                       roomData, table, deleteUrl);
+      } catch (err) {
+        alert("취소 실패: " + err.message);
+      }
+    });
+
+    row.cells[4].appendChild(cancelBtn);
   });
 }
 
 // ======================
 // 데이터 로드
 // ======================
-async function loadData(apiUrl, roomDataObj, table) {
+async function loadData(apiUrl, roomDataObj, table, deleteUrl) {
   const res = await fetch(apiUrl);
   const data = await res.json();
   Object.keys(roomDataObj).forEach(k => delete roomDataObj[k]);
   data.forEach(item => roomDataObj[item.reservation_term] = item);
-  updateTable(table, roomDataObj);
+  updateTable(table, roomDataObj, deleteUrl);
 }
 
 // ======================
-// 예약 제출 (upsert)
+// 예약 제출
 // ======================
-async function submitReservation(reservationTermId, peopleId, telId, nameId, updateUrl, saveUrl, roomDataObj, table) {
+async function submitReservation(reservationTermId, peopleId, telId, nameId, updateUrl, saveUrl, roomDataObj, table, deleteUrl) {
   const reservation_term = document.getElementById(reservationTermId).value;
   const people_number = document.getElementById(peopleId).value;
   const tel = document.getElementById(telId).value;
@@ -101,7 +134,9 @@ async function submitReservation(reservationTermId, peopleId, telId, nameId, upd
     if (!resultLocal.success) return alert("예약 등록 실패: " + resultLocal.message);
 
     alert("예약 등록 및 DB 저장 완료!");
-    await loadData(updateUrl.replace("/update_local","/load_data"), roomDataObj, table);
+    await loadData(updateUrl.replace("/update_local","/load_data")
+                         .replace("/update_local_b","/load_data_b"), 
+                   roomDataObj, table, deleteUrl);
   } catch (err) {
     alert("예약 실패: " + err.message);
   }
@@ -199,45 +234,45 @@ window.onload = async function() {
   tableB = createTable("table-container-b");
   createLastTable();
 
-  await loadData("/load_data", roomDataA, tableA);
-  await loadData("/load_data_b", roomDataB, tableB);
+  await loadData("/load_data", roomDataA, tableA, "/delete_reservation");
+  await loadData("/load_data_b", roomDataB, tableB, "/delete_reservation_b");
   await loadCheckList();
 
   document.getElementById("submit-btn").addEventListener("click", () => {
     submitReservation("reservation_term", "people-count", "phone-number", "note",
-                      "/update_local", "/save_to_db", roomDataA, tableA);
+                      "/update_local", "/save_to_db", roomDataA, tableA, "/delete_reservation");
   });
 
   document.getElementById("submit-btn-b").addEventListener("click", () => {
     submitReservation("reservation_term_b", "people-count-b", "phone-number-b", "note-b",
-                      "/update_local_b", "/save_to_db_b", roomDataB, tableB);
+                      "/update_local_b", "/save_to_db_b", roomDataB, tableB, "/delete_reservation_b");
   });
 
-
-document.getElementById("reset-btn").addEventListener("click", async () => {
+  document.getElementById("reset-btn").addEventListener("click", async () => {
     if (!confirm("모든 데이터를 초기화합니다. 정말 진행할까요?")) return;
     try {
-        const res = await fetch("/reset_all", { method: "POST" });
-        const result = await res.json();
-        if (!result.success) throw new Error(result.message || "초기화 실패");
+      const res = await fetch("/reset_all", { method: "POST" });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message || "초기화 실패");
 
-        // 로컬 데이터 초기화
-        roomDataA = {};
-        roomDataB = {};
-        updateTable(tableA, roomDataA);
-        updateTable(tableB, roomDataB);
+      // 로컬 데이터 초기화
+      roomDataA = {};
+      roomDataB = {};
+      updateTable(tableA, roomDataA, "/delete_reservation");
+      updateTable(tableB, roomDataB, "/delete_reservation_b");
 
-        // 체크리스트 초기화
-        lastTable.querySelectorAll("td").forEach(cell => { cell.innerHTML = ""; });
+      // 체크리스트 초기화
+      lastTable.querySelectorAll("td").forEach(cell => { cell.innerHTML = ""; });
 
-        // 다시 데이터 로드
-        await loadData("/load_data", roomDataA, tableA);
-        await loadData("/load_data_b", roomDataB, tableB);
-        await loadCheckList();
+      // 서버에서 다시 데이터 불러오기
+      await loadData("/load_data", roomDataA, tableA, "/delete_reservation");
+      await loadData("/load_data_b", roomDataB, tableB, "/delete_reservation_b");
+      await loadCheckList();
 
-        alert("모든 데이터가 초기화되었습니다!");
+      alert("모든 데이터가 초기화되었습니다!");
     } catch(err) {
-        alert("초기화 실패: " + err.message);
+      alert("초기화 실패: " + err.message);
     }
-});
+  });
 }
+

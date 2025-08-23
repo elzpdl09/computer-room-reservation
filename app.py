@@ -151,6 +151,41 @@ def reset_all():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
 
+# ======================
+# room_a 삭제
+# ======================
+@app.route('/delete_reservation', methods=['POST'])
+def delete_reservation():
+    global room_data
+    data = request.get_json()
+    term = data["reservation_term"]
+
+    try:
+        supabase.table("room_a").delete().eq("reservation_term", term).execute()
+        # 로컬에서도 삭제
+        if term in room_data:
+            del room_data[term]
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+
+# ======================
+# room_b 삭제
+# ======================
+@app.route('/delete_reservation_b', methods=['POST'])
+def delete_reservation_b():
+    global room_data_b
+    data = request.get_json()
+    term = data["reservation_term"]
+
+    try:
+        supabase.table("room_b").delete().eq("reservation_term", term).execute()
+        if term in room_data_b:
+            del room_data_b[term]
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
 
 if __name__ == "__main__":
