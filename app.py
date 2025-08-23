@@ -7,6 +7,7 @@ git push origin main
 import os
 from flask import Flask, request, jsonify, render_template
 from supabase import create_client, Client
+from flask_apscheduler import APScheduler  # 추가
 
 app = Flask(__name__)
 
@@ -186,6 +187,37 @@ def delete_reservation_b():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
+def reset_all_tasks():
+    """자정에 자동 실행되는 전체 초기화 함수"""
+    try:
+        # room_a / room_b 전체 삭제
+        supabase.table("room_a").delete().neq("reservation_term", None).execute()
+        supabase.table("room_b").delete().neq("reservation_term", None).execute()
+
+        # check_list 초기화 (1행 유지)
+        columns = ["a_one_in","a_one_out","a_two_in","a_two_out","a_three_in","a_three_out",
+                   "b_one_in","b_one_out","b_two_in","b_two_out","b_three_in","b_three_out"]
+        update_data = {col: False for col in columns}
+        supabase.table("check_list").update(update_data).eq("id", 1).execute()
+
+        # 로컬 변수도 초기화
+        global room_data, room_data_b
+        room_data = {}
+        room_data_b = {}
+
+        print("자동 초기화 완료!")
+    except Exception as e:
+        print("자동 초기화 실패:", e)
+
+# ======================
+# APScheduler 설정
+# ======================
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+# 매일 자정 0시 실행
+scheduler.add_job(id="Daily Reset", func=reset_all_tasks, trigger="cron", hour=0, minute=0)
 
 
 if __name__ == "__main__":
