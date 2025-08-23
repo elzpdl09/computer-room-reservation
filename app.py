@@ -11,7 +11,7 @@ from supabase import create_client, Client
 app = Flask(__name__)
 
 SUPABASE_URL = "https://rvinvraaphbdcgoifjin.supabase.co"
-SUPABASE_KEY = "sb_secret_Y-rj8tJewABB0aVc2m8sVg_GAHPesYj"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2aW52cmFhcGhiZGNnb2lmamluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTg1OTUxNSwiZXhwIjoyMDcxNDM1NTE1fQ.mTxXunrJDsPJA5AtyJxXGAiE3wbLzIJdtaKXfQacqcI"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 room_data = {}
@@ -155,5 +155,4 @@ def reset_all():
 
 if __name__ == "__main__":
     
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run()
