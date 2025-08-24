@@ -2,11 +2,11 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>5층 컴퓨터방 예약 웹사이트</title>
+  <title>5층 컴퓨터실 예약 사이트</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ config['VERSION'] }}">
 </head>
 <body>
-  <h1>5층 컴퓨터방 예약 웹사이트</h1>
+  <h1>5층 컴퓨터실 예약 사이트</h1>
 
   <h2>방 A 예약</h2>
   <div id="table-container" style="margin-bottom: 20px;"></div>
@@ -53,9 +53,10 @@
 <div id="table-container-last" style="margin-bottom: 50px;"></div>
 
   <script src="{{ url_for('static', filename='script.js') }}?v={{ config['VERSION'] }}"></script>
-  
-<button id="reset-btn">전체 초기화</button>
 
+<!-- div>
+<button id="reset-btn">전체 초기화</button>
+</div -->
 
   
 <h3>*문의사항은 학생회로 문의해 주세요 </h3>

@@ -8,7 +8,7 @@ const timeMap = { "1": "1타임(18:50~19:40)", "2": "2타임(19:50~20:40)", "3":
 function createTable(containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
-  const headerRow = ["예약 타임", "인원수", "대표 전화번호", "이름", "취소"]; // 마지막 컬럼 추가
+  const headerRow = ["예약 타임", "인원수", "대표 전화번호", "이름", "취소버튼"]; // 마지막 컬럼 추가
   const headerCol = ["1","2","3"];
 
   const table = document.createElement("table");
