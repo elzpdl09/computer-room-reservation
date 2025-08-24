@@ -143,14 +143,19 @@ def reset_all():
         # check_list 초기화 (1행 유지)
         columns = ["a_one_in","a_one_out","a_two_in","a_two_out","a_three_in","a_three_out",
                    "b_one_in","b_one_out","b_two_in","b_two_out","b_three_in","b_three_out"]
-
-        # 이미 존재하는 id=1 행을 업데이트
         update_data = {col: False for col in columns}
         supabase.table("check_list").update(update_data).eq("id", 1).execute()
 
-        return jsonify({"success": True})
+        # 로컬 변수 초기화
+        global room_data, room_data_b
+        room_data = {}
+        room_data_b = {}
+
+        # 성공 시 응답 최소화
+        return "", 204  # HTTP 204 No Content
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)})
+        # 실패 시 간단한 메시지 반환
+        return jsonify({"success": False, "message": "reset failed"}), 500
 
 # ======================
 # room_a 삭제
